@@ -1,7 +1,7 @@
 import React from 'react';
 import { atom, useRecoilState } from 'recoil';
-import { FaPlus } from 'react-icons/fa';
 import { menuFormState, menuState } from '../recoil/menuState'; // Correct recoil imports
+import addButton from '../assets/addButton.png';
 
 // Define a global atom for the expand/collapse state
 export const expandAllState = atom({
@@ -61,7 +61,7 @@ const MenuList = ({ item, onHover, hoveredItem }) => {
                         onClick={handleAddClick}
                         className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white ml-2"
                     >
-                        <FaPlus />
+                        <img src={addButton} alt="addButton" />
                     </button>
                 )}
             </div>

@@ -9,6 +9,7 @@ import MenuAdd from './MenuAdd';
 import MenuItem from './MenuItem';
 import { expandAllState } from './MenuItem'; // Import atom
 import Hamburger from '../assets/menu.png';
+import Sidebar from './sideBar';
 
 const Menu = () => {
     const [menus, setMenus] = useState([]);
@@ -45,7 +46,7 @@ const Menu = () => {
     return (
         <div className="flex">
             <div className="w-3/4 p-4 sidebar-icon">
-                <img src={sideBar} alt="Side Image" className="w-full h-full object-cover" />
+                <Sidebar className="w-full h-full object-cover sidebar-icon"/>
             </div>
             <div className="mobile-image">
                 <img src={Hamburger} alt="Mobile Image" className="w-6" />
