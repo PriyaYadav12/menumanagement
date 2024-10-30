@@ -2,6 +2,8 @@ import React from 'react';
 import { atom, useRecoilState } from 'recoil';
 import { menuFormState, menuState } from '../recoil/menuState'; // Correct recoil imports
 import addButton from '../assets/addButton.png';
+import { MdDelete } from "react-icons/md";
+import axios from 'axios';
 
 // Define a global atom for the expand/collapse state
 export const expandAllState = atom({
@@ -15,6 +17,8 @@ const MenuList = ({ item, onHover, hoveredItem }) => {
     const [isOpen, setIsOpen] = React.useState(expandAll);
     const [formData, setFormData] = useRecoilState(menuFormState);
     const [menuArr] = useRecoilState(menuState); // Get the menu data from Recoil state
+    const [isEditing, setIsEditing] = React.useState(false); // New state for editing
+    const [editableName, setEditableName] = React.useState(item.name); // State for the editable name
 
     React.useEffect(() => {
         setIsOpen(expandAll); // Sync with expand/collapse all state
@@ -42,8 +46,40 @@ const MenuList = ({ item, onHover, hoveredItem }) => {
         console.log(`Add new item under ${item.name} with depth ${lastDepth + 1}`);
     };
 
+    const handleDelete = async (e) => {
+        e.stopPropagation();
+        try {
+            // Send the toDeleteIds array to the server using Axios
+            await axios.post(`/api/deleteItems/${item.id}`);
+            window.location.reload();
+        } catch (error) {
+            console.error('Error deleting items:', error);
+        }
+    };
+
+    const handleEditClick = () => {
+        setIsEditing(true);
+    };
+
+    const handleBlur = async () => {
+        setIsEditing(false);
+        // Only send the update if the name has changed
+        if (editableName !== item.name) {
+            try {
+                await axios.post(`/api/update/${item.id}`, { name: editableName });
+                window.location.reload();
+            } catch (error) {
+                console.error('Error updating item:', error);
+            }
+        }
+    };
+
+    const handleChange = (e) => {
+        setEditableName(e.target.value); // Update the editable name
+    };
+
     const toggleExpand = () => {
-        setIsOpen(prev => !prev); // Toggle the open state
+        setIsOpen((prev) => !prev); // Toggle the open state
     };
 
     return (
@@ -51,18 +87,32 @@ const MenuList = ({ item, onHover, hoveredItem }) => {
             onMouseEnter={() => onHover(item.id)} // Notify parent of hover
             onMouseLeave={() => onHover(null)} // Reset hover state on mouse leave
         >
-            <div className="cursor-pointer flex items-center space-x-2" onClick={toggleExpand}>
+            <div className="cursor-pointer flex items-center space-x-2" onClick={handleEditClick}>
                 {item.children.length > 0 && (
-                    <div className={`transform ${isOpen ? 'rotate-180' : ''}`}>^</div>
+                    <div className={`transform ${isOpen ? 'rotate-180' : ''}`} onClick={toggleExpand}>^</div>
                 )}
-                <div className="font-medium">{item.name}</div>
+                {isEditing ? (
+                    <input
+                        type="text"
+                        value={editableName}
+                        onChange={handleChange}
+                        onBlur={handleBlur} // Send update on blur
+                        autoFocus // Focus the input when editing
+                        className="border border-gray-300 rounded p-1"
+                    />
+                ) : (
+                    <div className="font-medium">{item.name}</div>
+                )}
                 {hoveredItem === item.id && (
-                    <button
-                        onClick={handleAddClick}
-                        className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white ml-2"
-                    >
-                        <img src={addButton} alt="addButton" />
-                    </button>
+                    <div className="flex space-x-1 ml-2">
+                        <button
+                            onClick={handleAddClick}
+                            className="flex items-center justify-center w-4 h-4 rounded-full bg-blue-500 text-white"
+                        >
+                            <img src={addButton} alt="Add" />
+                        </button>
+                        <MdDelete onClick={handleDelete} />
+                    </div>
                 )}
             </div>
 

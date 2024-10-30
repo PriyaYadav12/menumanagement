@@ -20,3 +20,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 Route::get('/menus', [MenuController::class, 'index']);
 Route::post('/saveMenu', [MenuController::class, 'store']);
+Route::post('/deleteItems/{id}', [MenuController::class, 'deleteItem']);
+Route::post('/update/{id}', [MenuController::class, 'updateItem']);
